@@ -20,12 +20,12 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
-
-      - name: Fix Private Key Formatting
+        
+      - name: Start SSH Agent and Add Key
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" | sed 's/\\n/\n/g' > private_key
-          chmod 600 private_key
-
+          eval $(ssh-agent -s)
+          echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' | ssh-add -
+          ssh -o StrictHostKeyChecking=no $USER@$HOST "echo 'SSH Connected via Agent!'"
 
       - name: Deploy to EC2 via SSH
         env:
