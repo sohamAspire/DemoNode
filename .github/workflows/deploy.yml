@@ -20,8 +20,12 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
-        
+
       - name: Start SSH Agent and Add Key
+        env:
+            PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+            HOST: ${{ secrets.EC2_HOST }}
+            USER: ${{ secrets.EC2_USER }}
         run: |
           eval $(ssh-agent -s)
           echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' | ssh-add -
