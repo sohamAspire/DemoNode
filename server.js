@@ -63,7 +63,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/test', (req, res) => {
-    res.status(200).send('Welcome onboard!');
+    res.status(200).send('Welcome onboard Developer!');
 });
 
 app.get('/cookies', (req, res) => {
