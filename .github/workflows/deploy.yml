@@ -21,6 +21,12 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Fix Private Key Formatting
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" | sed 's/\\n/\n/g' > private_key
+          chmod 600 private_key
+
+
       - name: Deploy to EC2 via SSH
         env:
           PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
@@ -46,7 +52,7 @@ jobs:
             # Cleanup old processes
             pm2 save
           EOF
-          
+
       - name: Debug SSH Connection
         run: |
           ssh -vvv -o StrictHostKeyChecking=no -i private_key $USER@$HOST "echo 'SSH Connected Successfully!'"
