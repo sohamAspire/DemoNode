@@ -18,6 +18,14 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 54.175.209.139 >> ~/.ssh/known_hosts
+      
+      - name: Debug SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ls -lah ~/.ssh
+          cat ~/.ssh/id_rsa | head -n 5  # Show first few lines of key for debugging
 
       - name: Test SSH Connection
         run: ssh -i ~/.ssh/id_rsa ubuntu@54.175.209.139 "echo SSH Connected Successfully!"
