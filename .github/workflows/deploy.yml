@@ -36,13 +36,24 @@ jobs:
           PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
+          REPO_URL: ${{ secrets.EC2_REPO_URL }}
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
 
           ssh -o StrictHostKeyChecking=no -i private_key.pem $USER@$HOST << 'EOF'
-            # Go to the app directory
-            cd /home/ubuntu/myapp
+
+            # Set up environment
+            APP_DIR="/home/ubuntu/myapp"
+
+            # Check if the directory exists
+            if [ ! -d "$APP_DIR" ]; then
+              echo "Repository not found. Cloning..."
+              git clone $REPO_URL $APP_DIR
+            fi
+
+            # Move to the project directory
+            cd $APP_DIR
 
             # Pull latest code
             git pull origin master
