@@ -21,33 +21,32 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Fix Private Key Formatting
-        run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > private_key
-          chmod 600 private_key
-
       - name: Deploy to EC2 via SSH
         env:
           PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
         run: |
-          echo "$PRIVATE_KEY" > private_key
-          chmod 600 private_key
+          echo "$PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
 
-          ssh -o StrictHostKeyChecking=no -i private_key $USER@$HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $USER@$HOST << 'EOF'
             # Go to the app directory
             cd /home/ubuntu/myapp
 
             # Pull latest code
-            git pull origin main
+            git pull origin master
 
             # Install dependencies
             npm install
 
             # Restart the application using PM2
-            pm2 restart all || pm2 start index.js --name "myapp"
+            pm2 restart all || pm2 start server.js --name "myapp"
 
             # Cleanup old processes
             pm2 save
           EOF
+          
+      - name: Debug SSH Connection
+        run: |
+          ssh -vvv -o StrictHostKeyChecking=no -i private_key $USER@$HOST "echo 'SSH Connected Successfully!'"
